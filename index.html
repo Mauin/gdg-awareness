@@ -53,6 +53,15 @@
 					<p>Marvin Ramin</p>
 					</br>
 				</div>
+				<aside class="notes">
+					Announced at I/O 2016
+					</br>
+					Phones are smart and know a lot
+					</br>
+					Shares the available information
+					</br>
+					Less work for developers to get Info about the user Context
+				</aside>
 			</section>
 
 			<!--
@@ -82,6 +91,8 @@
 				</ul>
 				<aside class="notes">
 					Google is very generous, they give us 2 APIs!
+					</br>
+					Snapshot is polling based, fence is awesome based
 				</aside>
 			</section>
 
@@ -94,13 +105,22 @@
 					<li class="fragment">Use weather data</li>
 				</ul>
 				<aside class="notes">
-
+					Lots of work for a simple task
+					</br>
+					Every developer uses his own implementation
+					</br>
+					You use your weather data and realize the weather is bad
 				</aside>
 			</section>
 
 			<section>
 				<img class="plain" align="middle" style="height:900px" data-src="./img/rain.jpg">
 				</br>
+				<aside class="notes">
+					Raining - You are sad
+					</br>
+					Google doesn't want to see you be sad
+				</aside>
 			</section>
 
 
@@ -110,7 +130,9 @@
 Awareness.SnapshotApi.getWeather(googleApiClient)
 				</code></pre>
 				<aside class="notes">
-
+					Very simple call which has exactly the result you want
+					</br>
+					Caveat: GoogleApiClient
 				</aside>
 			</section>
 
@@ -126,7 +148,9 @@ Awareness.SnapshotApi.getWeather(googleApiClient)
 				</ul>
 				<aside class="notes">
 					Polling based
-
+					</br>
+					Beacons are only yours, you have to give more beacon info, not just any
+					</br>
 					You don't want to poll/ask, you want to be notified once user is in state x
 				</aside>
 			</section>
@@ -136,6 +160,10 @@ Awareness.SnapshotApi.getWeather(googleApiClient)
 				<img class="plain fragment" align="middle" style="height:800px" data-src="./img/fence.jpg">
 				<aside class="notes">
 					Comes from Geofencing
+					</br>
+					Notifies you about user states you care about
+					</br>
+					Let's build a small example
 				</aside>
 			</section>
 
@@ -146,23 +174,26 @@ Awareness.SnapshotApi.getWeather(googleApiClient)
 HeadphoneFence.during(HeadphoneState.PLUGGED_IN)
 				</code></pre>
 				<aside class="notes">
-
+					Notifies you once headphone state changes with value true if plugged in
 				</aside>
 			</section>
 
 			<section>
-				<h2>Building a Fence</h2>
+				<h2>Building a Fence (cont.)</h2>
 				
 				<pre><code class="java" data-noescape data-trim>
 AwarenessFence.and(HeadphoneFence.during(PLUGGED_IN), LocationFence.entering(lat, lng, radius))
 				</code></pre>
 				<aside class="notes">
-
+					Notified when headphones plugged in and near a location
+					</br>
+					Do this next to Hamburg Dungeon to play a really loud screaming sound file to scare the user
+					</br>
+					The user will also uninstall your app
 				</aside>
 			</section>
 
 			<section>
-			<!-- and/or -->
 				<h2>Register your fence</h2>
 				
 				<pre><code class="java" data-noescape data-trim>
@@ -173,7 +204,9 @@ FenceUpdateRequest fenceUpdateRequest = new FenceUpdateRequest.Builder()
 Awareness.FenceApi.updateFences(googleApiClient, fenceUpdateRequest)
 				</code></pre>
 				<aside class="notes">
-
+					Each fence has a name so you can recognize it
+					</br>
+					PendingIntent for the callbacks
 				</aside>
 			</section>
 
@@ -182,7 +215,7 @@ Awareness.FenceApi.updateFences(googleApiClient, fenceUpdateRequest)
 				<h4 class="fragment">PendingIntent</h4>
 				<h4 class="fragment">FenceState</h4>
 				<aside class="notes">
-
+					PendingIntent for BroadcastReceiver, Service, whatever you prefer
 				</aside>
 			</section>
 
@@ -193,7 +226,7 @@ Awareness.FenceApi.updateFences(googleApiClient, fenceUpdateRequest)
 				<h4 class="fragment">Headphone state</h4>
 				<h4 class="fragment">Beacons</h4>
 				<aside class="notes">
-
+					Note that weather and nearby are not in the Fence API
 				</aside>
 			</section>
 
