@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>Android Awareness API - Snapshotting your Fences for more Context</title>
+
+	<meta name="description" content="Snapshotting your Fences for more Context" <meta name="author" content="Marvin Ramin">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=2.5, user-scalable=yes, minimal-ui">
+
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+	<!-- Code syntax highlighting -->
+	<link rel="stylesheet" href="lib/css/dracula.css">
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+	</script>
+</head>
+
+<body>
+
+	<div class="reveal">
+		<div class="slides">
+			<!--
+				__      __       .__
+			 /  \    /  \ ____ |  |   ____  ____   _____   ____
+			 \   \/\/   // __ \|  | _/ ___\/  _ \ /     \_/ __ \
+			  \        /\  ___/|  |_\  \__(  <_> )  Y Y  \  ___/
+			   \__/\  /  \___  >____/\___  >____/|__|_|  /\___  >
+			        \/       \/          \/            \/     \/
+			  -->
+			<section>
+				<div>
+					<h1>Android Awareness API</h1>
+					<p><i>Snapshotting your Fences for more Context</i></p>
+				</div>
+
+				<div>
+					</br>
+					</br></br>
+					<p>Marvin Ramin</p>
+					</br>
+				</div>
+			</section>
+
+			<!--
+				__________                __    _______  ____
+			\______   \_____ ________/  |_  \   _  \/_   |
+			 |     ___/\__  \\_  __ \   __\ /  /_\  \|   |
+			 |    |     / __ \|  | \/|  |   \  \_/   \   |
+			 |____|    (____  /__|   |__|    \_____  /___|
+			                \/                     \/
+				-->
+
+			<section>
+				<h2>android.content.Context?</h2>
+				<h4 class="fragment">No, your users Context!</h4>
+			</section>
+
+			<section>
+				<h2>In the beginning there was the GoogleApiClient</h2>
+				<h4 class="fragment">(Or just use Servant)</h4>
+			</section>
+
+			<section>
+				<h2>Two APIs you shall use!</h2>
+				<ul>
+					<li class="fragment">Snapshot API</li>
+					<li class="fragment">Fence API</li>
+				</ul>
+				<aside class="notes">
+					Google is very generous, they give us 2 APIs!
+				</aside>
+			</section>
+
+			<section>
+				<h2>What is the weather like where my user is?</h2>
+				<ul>
+					<li class="fragment">Network Client</li>
+					<li class="fragment">https://myfavorite.weather.api/weather?q=Hamburg,de</li>
+					<li class="fragment">Parse JSON response</li>
+					<li class="fragment">Use weather data</li>
+				</ul>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+				<img class="plain" align="middle" style="height:900px" data-src="./img/rain.jpg">
+				</br>
+			</section>
+
+
+			<section>
+				<h2>What is the weather like where my user is?</h2>
+				<pre><code class="java fragment" data-noescape data-trim>
+Awareness.SnapshotApi.getWeather(googleApiClient)
+				</code></pre>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+				<h2>Snapshot API</h2>
+				<ul>
+					<li class="fragment">Weather</li>
+					<li class="fragment">Users Activity</li>
+					<li class="fragment">Nearby Places</li>
+					<li class="fragment">Your nearby Beacons</li>
+					<li class="fragment">Location</li>
+					<li class="fragment">Headphone state</li>	
+				</ul>
+				<aside class="notes">
+					Polling based
+
+					You don't want to poll/ask, you want to be notified once user is in state x
+				</aside>
+			</section>
+
+			<section>
+				<h2>The Fence API</h2>
+				<img class="plain fragment" align="middle" style="height:800px" data-src="./img/fence.jpg">
+				<aside class="notes">
+					Comes from Geofencing
+				</aside>
+			</section>
+
+			<section>
+				<h2>Building a Fence</h2>
+
+				<pre><code class="java fragment" data-noescape data-trim>
+HeadphoneFence.during(HeadphoneState.PLUGGED_IN)
+				</code></pre>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+				<h2>Building a Fence</h2>
+				
+				<pre><code class="java" data-noescape data-trim>
+AwarenessFence.and(HeadphoneFence.during(PLUGGED_IN), LocationFence.entering(lat, lng, radius))
+				</code></pre>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+			<!-- and/or -->
+				<h2>Register your fence</h2>
+				
+				<pre><code class="java" data-noescape data-trim>
+FenceUpdateRequest fenceUpdateRequest = new FenceUpdateRequest.Builder()
+        .addFence("name", fence, pendingIntent)
+        .build();
+
+Awareness.FenceApi.updateFences(googleApiClient, fenceUpdateRequest)
+				</code></pre>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+				<h2>Receive your result!</h2>
+				<h4 class="fragment">PendingIntent</h4>
+				<h4 class="fragment">FenceState</h4>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+				<h2>Fence API</h2>
+				<h4 class="fragment">Location</h4>
+				<h4 class="fragment">Activity</h4>
+				<h4 class="fragment">Headphone state</h4>
+				<h4 class="fragment">Beacons</h4>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+				<h2>Too much code, too many callbacks</h2>
+				<h4 class="fragment">ReactiveAwareness</h4>
+				</br>
+				<pre><code class="java fragment" data-noescape data-trim>
+reactiveSnapshot.getWeather(context).subscribe(/**/)
+				</code></pre>
+				</br>
+				<pre><code class="java fragment" data-noescape data-trim>
+ObservableFence.create(context, fence).subscribe(/**/)
+				</code></pre>
+				<aside class="notes">
+
+				</aside>
+			</section>
+
+			<section>
+				<h2>Reading material</h2>
+				<ul>
+					<li class="fragment"><a href="https://developers.google.com/awareness/">developer.android.com</a></li>
+					<li class="fragment"><a href="https://www.youtube.com/watch?v=37ia7S4Lsv4">Introducing the Awareness API</a></li>
+
+					<li class="fragment"><a href="https://github.com/Mauin/servant">Servant</a></li>
+					<li class="fragment"><a href="https://github.com/Mauin/reactiveawareness">ReactiveAwareness</a></li>
+				</ul>
+				<aside class="notes">
+				</aside>
+			</section>
+
+			<!--
+				___________.__                                .___
+				\__    ___/|  |__   ____     ____   ____    __| _/
+				  |    |   |  |  \_/ __ \  _/ __ \ /    \  / __ |
+				  |    |   |   Y  \  ___/  \  ___/|   |  \/ /_/ |
+				  |____|   |___|  /\___  >  \___  >___|  /\____ |
+				                \/     \/       \/     \/      \/
+			 	-->
+
+			<section>
+				<h1>Thank you!</h1>
+
+				<img class="fragment" data-fragment-index="2" align="right" height="500" data-src="./img/qr_code.jpg">
+				</br>
+				<div class="fragment" data-fragment-index="1">
+					<div align="left">
+						<img class="plain" align="middle" hspace="10" style="width:150;height:150px;vertical-align:middle" data-src="./img/logo_github.png">
+						<span style="">	&nbsp;	&nbsp;<a href="http://twitter.com/mauin">@Mauin</a></span>
+					</div>
+					<div align="left">
+						<img class="plain" align="middle" hspace="20" style="width:125px;height:125px;vertical-align:middle" data-src="./img/icon_github.png">
+						<span style="">	&nbsp;	&nbsp;	&nbsp;<a href="http://github.com/mauin">github.com/mauin</a></span>
+					</div>
+				</div>
+			</section>
+
+		</div>
+	</div>
+
+	<script src="lib/js/head.min.js"></script>
+	<script src="js/reveal.js"></script>
+
+	<script>
+		// Full list of configuration options available at:
+		// https://github.com/hakimel/reveal.js#configuration
+		Reveal.initialize({
+			controls: false,
+			progress: true,
+			history: true,
+			center: true,
+			slideNumber: true,
+			slideNumber: 'c / t',
+
+			transition: 'none',
+
+			width: 1920,
+			height: 1080,
+			// Factor of the display size that should remain empty around the content
+			margin: 0.1,
+
+			// Bounds for smallest/largest possible scale to apply to content
+			minScale: 0.2,
+			maxScale: 2.0,
+
+			// Optional reveal.js plugins
+			dependencies: [{
+				src: 'lib/js/classList.js',
+				condition: function() {
+					return !document.body.classList;
+				}
+			}, {
+				src: 'plugin/markdown/marked.js',
+				condition: function() {
+					return !!document.querySelector('[data-markdown]');
+				}
+			}, {
+				src: 'plugin/markdown/markdown.js',
+				condition: function() {
+					return !!document.querySelector('[data-markdown]');
+				}
+			}, {
+				src: 'plugin/highlight/highlight.js',
+				async: true,
+				callback: function() {
+					[].forEach.call(document.querySelectorAll('.highlight, pre code'), function(v, i) {
+						hljs.highlightBlock(v);
+					});
+				}
+			}, {
+				src: 'plugin/zoom-js/zoom.js',
+				async: true
+			}, {
+				src: 'plugin/notes/notes.js',
+				async: true
+			}, {
+				src: 'plugin/external/external.js',
+				condition: function() {
+					return !!document.querySelector('[data-external]');
+				}
+			}]
+		});
+	</script>
+
+</body>
+
+</html>

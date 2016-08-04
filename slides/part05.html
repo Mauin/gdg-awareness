@@ -1,0 +1,243 @@
+<section>
+  <h2>CryptoObject</h2>
+  <p class="fragment">now you're encrypting with fingerprints</p>
+  <aside class="notes">
+  </aside>
+</section>
+
+<section>
+  <h2>Fingerprint authentication</h2>
+  <p class="fragment">...replaces some sort of other authentication</p>
+  <aside class="notes">
+    You wouldn't just add fingerprint authentication for the sake of it.
+
+    User should be present
+
+    Maybe you still need your old form of authentication for network calls
+
+    Think password, token, pin, something else
+
+    Where do you store it?
+  </aside>
+</section>
+
+<section>
+  <h2>CryptoObject allows encryption</h2>
+  <ul>
+    <li class="fragment">Relies on Android KeyStore</li>
+    <li class="fragment">Only accessible by biometric authentication</li>
+  </ul>
+  <aside class="notes">
+    Encryprion and decryption with Android KeyStore
+
+    Biometric authentication if you set it up correctly
+  </aside>
+</section>
+
+<section>
+  <h2>CryptoObject</h2>
+  <ul>
+    <li>Signature</li>
+    <li>MAC</li>
+    <li>Cipher</li>
+  </ul>
+  <aside class="notes">
+    Focus on Cipher
+  </aside>
+</section>
+
+<section>
+  <h2>CryptoObject</h2>
+  <ul>
+    <li class="fragment">Set up Cipher</li>
+    <li class="fragment">Set up Key in KeyStore</li>
+    <li class="fragment">Init Cipher with Key</li>
+    <li class="fragment">Create CryptoObject with Cipher</li>
+  </ul>
+  <aside class="notes">
+    4 easy steps we will go through
+  </aside>
+</section>
+
+<section>
+  <h2>Set up Cipher</h2>
+  <pre><code class="java" data-noescape data-trim>
+return Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
+                + KeyProperties.BLOCK_MODE_CBC + "/"
+                + KeyProperties.ENCRYPTION_PADDING_PKCS7
+);
+  </code></pre>
+  <aside class="notes">
+    4 easy steps we will go through
+  </aside>
+</section>
+
+<section>
+  <h2>Set up Key in KeyStore</h2>
+  <pre><code class="java" data-noescape data-trim>
+KeyGenerator keyGenerator = KeyGenerator.getInstance(KEY_ALGORITHM_AES, ANDROID_KEY_STORE);
+keyGenerator.init(new KeyGenParameterSpec.Builder(keyName, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
+        .setBlockModes(BLOCK_MODE_CBC)
+        .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7)
+        .setUserAuthenticationRequired(true)
+        .build());
+return keyGenerator.generateKey();
+  </code></pre>
+  <aside class="notes">
+  </aside>
+</section>
+
+<section>
+  <h2>Set up Key in KeyStore</h2>
+  <pre><code class="java" data-noescape data-trim>
+KeyGenerator keyGenerator = KeyGenerator.getInstance(KEY_ALGORITHM_AES, ANDROID_KEY_STORE);
+keyGenerator.init(new KeyGenParameterSpec.Builder(keyName, PURPOSE_ENCRYPT | PURPOSE_DECRYPT)
+        .setBlockModes(BLOCK_MODE_CBC)
+        .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7)
+        <mark>.setUserAuthenticationRequired(true)</mark>
+        .build());
+return keyGenerator.generateKey();
+  </code></pre>
+
+  <p class="fragment">Or load your Key from the KeyStore</p>
+  <aside class="notes">
+    Userauthentication required! Means lock screen authentication
+
+    Fingerprint required to use this key
+
+    Don't just create a new key every time or for decryption
+  </aside>
+</section>
+
+<section>
+  <h2>Init your Cipher</h2>
+  <pre><code class="java" data-noescape data-trim>
+cipher.init(Cipher.ENCRYPT_MODE, key);
+  </code></pre>
+  <aside class="notes">
+    Encrypt mode with the key we just found
+  </aside>
+</section>
+
+<section>
+  <h2>Init your Cipher</h2>
+  <pre><code class="java" data-noescape data-trim>
+cipher.init(<mark>Cipher.ENCRYPT_MODE</mark>, key);
+  </code></pre>
+  <aside class="notes">
+    Encrypt mode with the key we just found
+  </aside>
+</section>
+
+<section>
+  <h2>Init your Cipher for decryption</h2>
+  <pre><code class="java" data-noescape data-trim>
+cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+  </code></pre>
+  <aside class="notes">
+    Decrypt mode and store the Initialization Vector somewhere
+
+    You can retrieve this after the encryption from the Cipher
+  </aside>
+</section>
+
+<section>
+  <h2>Init your Cipher for decryption</h2>
+  <pre><code class="java" data-noescape data-trim>
+cipher.init(<mark>Cipher.DECRYPT_MODE</mark>, key, new IvParameterSpec(iv));
+  </code></pre>
+  <aside class="notes">
+    Decrypt mode and store the Initialization Vector somewhere
+
+    You can retrieve this after the encryption from the Cipher
+  </aside>
+</section>
+
+<section>
+  <h2>Init your Cipher for decryption</h2>
+  <pre><code class="java" data-noescape data-trim>
+cipher.init(Cipher.DECRYPT_MODE, key, <mark>new IvParameterSpec(iv)</mark>);
+  </code></pre>
+  <aside class="notes">
+    IV can be stored somewhere.
+
+    Do not reuse IV's!
+  </aside>
+</section>
+
+<section>
+  <h2>Create CryptoObject with Cipher</h2>
+  <pre><code class="java" data-noescape data-trim>
+CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
+  </code></pre>
+
+  <pre class="fragment"><code class="java" data-noescape data-trim>
+fingerprintManager.authenticate(cryptoObject, 0, cancellationSignal, callback, null);
+  </code></pre>
+  <aside class="notes">
+    Pass this into the .authenticate() call
+
+    Nothing is encrypted yet!
+
+    And hope for the succeeded callback!
+  </aside>
+</section>
+
+<section>
+  <h2>Create CryptoObject with Cipher</h2>
+  <pre><code class="java" data-noescape data-trim>
+CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
+  </code></pre>
+
+  <pre><code class="java" data-noescape data-trim>
+fingerprintManager.authenticate(<mark>cryptoObject</mark>, 0, cancellationSignal, callback, null);
+  </code></pre>
+  <aside class="notes">
+    Pass this into the .authenticate() call
+
+    Nothing is encrypted yet!
+
+    And hope for the succeeded callback!
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthenticationSucceeded(AuthenticationResult)</h2>
+  <p class="fragment">Access to the CryptoObject</p>
+  <aside class="notes">
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthenticationSucceeded(AuthenticationResult)</h2>
+  <pre><code class="java" data-noescape data-trim>
+Cipher cipher = authenticationResult.getCryptoObject().getCipher();
+byte[] encryptedBytes = cipher.doFinal("1234".getBytes("UTF-8"));
+  </code></pre>
+  <aside class="notes">
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthenticationSucceeded(AuthenticationResult)</h2>
+  <pre><code class="java" data-noescape data-trim>
+<mark>Cipher cipher = authenticationResult.getCryptoObject().getCipher();</mark>
+byte[] encryptedBytes = cipher.doFinal("1234".getBytes("UTF-8"));
+  </code></pre>
+  <aside class="notes">
+    get access to the cipher
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthenticationSucceeded(AuthenticationResult)</h2>
+  <pre><code class="java" data-noescape data-trim>
+Cipher cipher = authenticationResult.getCryptoObject().getCipher();
+<mark>byte[] encryptedBytes = cipher.doFinal("1234".getBytes("UTF-8"));</mark>
+  </code></pre>
+  <aside class="notes">
+    Encrypt with the doFinal method
+
+    Result is encrypted byte array
+  </aside>
+</section>

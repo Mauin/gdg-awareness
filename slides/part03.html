@@ -1,0 +1,253 @@
+<section>
+  <h2>We can do better!</h2>
+</section>
+
+<section>
+  <h2>With Code!!</h2>
+  <p class="fragment">... and hopefully some nice UI</p>
+</section>
+
+<section>
+  <h2>Prequisites</h2>
+  <p class="fragment">compileSdkVersion 23</p>
+  <p class="fragment">USE_FINGERPRINT permission</p>
+  <p class="fragment">Device or emulator with fingerprint sensor</p>
+</section>
+
+<section>
+  <h2>Fingerprint Classes</h2>
+  <ul>
+    <li class="fragment">FingerprintManager</li>
+    <li class="fragment">CancellationSignal</li>
+    <li class="fragment">AuthenticationCallback</li>
+    <li class="fragment">CryptoObject</li>
+  </ul>
+  <aside class="notes">
+
+  </aside>
+</section>
+
+<section>
+  <h2>FingerprintManager</h2>
+  <aside class="notes">
+    And forget FingerprintManager again -> FingerprintManagerCompat
+  </aside>
+</section>
+
+<section>
+  <h2>FingerprintManagerCompat</h2>
+  <aside class="notes">
+    Now we can actually use this with pre Marshmallow devices
+
+    Not use, but it won't crash
+  </aside>
+</section>
+
+<section>
+  <h2>FingerprintManagerCompat</h2>
+  <pre><code class="java" data-noescape data-trim>
+return FingerprintManagerCompat.from(context);
+  </code></pre>
+  <aside class="notes">
+
+  </aside>
+</section>
+
+
+<section>
+  <h2>FingerprintManagerCompat</h2>
+  <ul>
+    <li class="fragment">#authenticate</li>
+  </ul>
+  <aside class="notes">
+    warms up the fingerprint sensor so it's ready to detect fingers but wait!!
+  </aside>
+</section>
+
+
+<section>
+  <h2>FingerprintManagerCompat</h2>
+  <ul>
+    <li class="fragment">#isHardwareDetected</li>
+    <li class="fragment">#hasEnrolledFingerprints</li>
+  </ul>
+  <aside class="notes">
+    check if fingerprint authentication is possible
+  </aside>
+</section>
+
+<section>
+  <h2>#authenticate(...)</h2>
+  <ul>
+    <li class="fragment">CryptoObject</li>
+    <li class="fragment">flags</li>
+    <li class="fragment">CancellationSignal</li>
+    <li class="fragment">AuthenticationCallback</li>
+    <li class="fragment">Handler</li>
+  </ul>
+  <aside class="notes">
+    now we're sure fingerprint authentication will work. call authenticate to allow user to use the sensor.
+  </aside>
+</section>
+
+<section>
+  <h2>#authenticate(...)</h2>
+  <ul>
+    <li><i>(CryptoObject)</i></li>
+    <li>flags</li>
+    <li>CancellationSignal</li>
+    <li>AuthenticationCallback</li>
+    <li><i>Handler</i></li>
+  </ul>
+  <aside class="notes">
+    CryptoObject - Used for crypto operations related to the authentication
+
+    More later
+
+    Optional! Can be null
+  </aside>
+</section>
+
+<section>
+  <h2>#authenticate(...)</h2>
+  <ul>
+    <li><i>(CryptoObject)</i></li>
+    <li><i>(flags)</i></li>
+    <li>CancellationSignal</li>
+    <li>AuthenticationCallback</li>
+    <li><i>Handler</i></li>
+  </ul>
+  <aside class="notes">
+    "Optional flags, should be 0" - documentation
+  </aside>
+</section>
+
+<section>
+  <h2>#authenticate(...)</h2>
+  <ul>
+    <li><i>(CryptoObject)</i></li>
+    <li><i>(flags)</i></li>
+    <li>CancellationSignal</li>
+    <li>AuthenticationCallback</li>
+    <li><i>(Handler)</i></li>
+  </ul>
+  <aside class="notes">
+    Handler where callbacks should run
+
+    Optional, can be null
+  </aside>
+</section>
+
+<section>
+  <h2>#authenticate(...)</h2>
+  <ul>
+    <li><i>(CryptoObject)</i></li>
+    <li><i>(flags)</i></li>
+    <li><b style="color:red">CancellationSignal</b></li>
+    <li><b>AuthenticationCallback</b></li>
+    <li><i>(Handler)</i></li>
+  </ul>
+  <aside class="notes">
+    Create and store this somewhere
+
+    Cancel operation when not needed anymore
+
+    Also has callbacks if you want to execute stuff after operation cancelled
+  </aside>
+</section>
+
+<section>
+  <h2>#authenticate(...)</h2>
+  <ul>
+    <li><i>(CryptoObject)</i></li>
+    <li><i>(flags)</i></li>
+    <li><b style="color:red">CancellationSignal</b></li>
+    <li><b style="color:red">AuthenticationCallback</b></li>
+    <li><i>(Handler)</i></li>
+  </ul>
+  <aside class="notes">
+    This is the big one
+
+    Callback for results of the authentication
+  </aside>
+</section>
+
+
+<section>
+  <h2>AuthenticationCallback</h2>
+  <aside class="notes">
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthentication...</h2>
+  <ul>
+    <li class="fragment">Succeeded</li>
+    <li class="fragment">Error</li>
+    <li class="fragment">Failed</li>
+    <li class="fragment">Help</li>
+  </ul>
+  <aside class="notes">
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthenticationError</h2>
+  <ul>
+    <li class="fragment">Fingerprint detection not possible</li>
+    <li class="fragment">Operation cancelled</li>
+  </ul>
+  <aside class="notes">
+    Error is bad, and it will cancel the operation
+
+    Maybe the sensor is broken,
+    fell out or is just sad today and doesn't want to work
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthenticationFailed</h2>
+  <ul>
+    <li class="fragment">Fingerprint detected but not authenticated</li>
+  </ul>
+  <aside class="notes">
+    Will not cancel the operation, you can try again
+
+    Wrong finger, wrong person
+  </aside>
+</section>
+
+<section>
+  <h2>onAuthenticationHelp</h2>
+  <ul>
+    <li class="fragment">Recoverable error</li>
+    <li class="fragment">Help string provided</li>
+  </ul>
+  <aside class="notes">
+    Operation still active
+
+    Moved finger too fast, too little.
+
+    Dirt
+
+    Unclear image
+
+    Just try again, it will work next time
+  </aside>
+</section>
+
+
+<section>
+  <h2>onAuthenticationSucceeded</h2>
+  <ul>
+    <li class="fragment">Fingerprint was detected and authenticated</li>
+    <li class="fragment">Access to CryptoObject</li>
+  </ul>
+  <aside class="notes">
+    yay!
+
+    We have our user (maybe)
+
+    Any finger registered in the device was found
+  </aside>
+</section>
